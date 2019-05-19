@@ -1,19 +1,21 @@
 package com.company;
 
 
-//Jestem na etapie zczytywania z txt inputu do programu teraz bede to przetwarzac
+//zczytanie z inputu +
+//chodzenie po stanach +
+//wykrywanie blockowan w A i B
 
-import org.w3c.dom.Node;
+//TODO:
+//modularnosc nazw
+//rozbudowanie do wiekszej ilosci entities
+//
 
-import javax.swing.text.html.parser.Entity;
+
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -89,6 +91,7 @@ public class Main {
                 } while (APossibleTransitions.get(RandomWalk) == Acurrent);
 
                 System.out.println("Entity A");
+                System.out.println("=====================================================================");
                 System.out.println("Transition form " + Acurrent + " to " + APossibleTransitions.get(RandomWalk) + " state");
                 for (int i = 0; i < myEntityList.size(); i++) {
                     if (myEntityList.get(i).getEnitityLetter() == 'A' && myEntityList.get(i).getStateNumber() == Acurrent && myEntityList.get(i).getDestiantion() == APossibleTransitions.get(RandomWalk)) {
@@ -109,12 +112,49 @@ public class Main {
                 System.out.println("Queue looks like this: " + queue);
                 APossibleTransitions.clear();
             }
+            for(int i = 0; i < myEntityList.size(); i++) {
+                if (myEntityList.get(i).getEnitityLetter() == 'B' && myEntityList.get(i).getStateNumber() == Bcurrent) {
+                    BPossibleTransitions.add(myEntityList.get(i).getDestiantion());
+                }
+            }
+
+            if(BPossibleTransitions.size() == 0)
+            {
+                System.out.println("B Has no other trasitions");
+                Bblocked = true;
+            }else {
+                do {
+                    RandomWalk = ThreadLocalRandom.current().nextInt(0, BPossibleTransitions.size());
+                } while (BPossibleTransitions.get(RandomWalk) == Bcurrent);
+
+                System.out.println("=====================================================================");
+                System.out.println("Entity B");
+                System.out.println("Transition form " + Bcurrent + " to " + BPossibleTransitions.get(RandomWalk) + " state");
+                for (int i = 0; i < myEntityList.size(); i++) {
+                    if (myEntityList.get(i).getEnitityLetter() == 'B' && myEntityList.get(i).getStateNumber() == Bcurrent && myEntityList.get(i).getDestiantion() == BPossibleTransitions.get(RandomWalk)) {
+
+                        if (myEntityList.get(i).getTransmision() == '-') {
+                            System.out.println("Sanding " + myEntityList.get(i).getMessage() + " to Queue");
+                            queue = queue + myEntityList.get(i).getMessage();
+                        } else if (myEntityList.get(i).getTransmision() == '+') {
+                            System.out.println("Receiving " + myEntityList.get(i).getMessage() + " from Queue");
+                            queue = removeFirst(myEntityList.get(i).getMessage(), queue);
+                        } else {
+                            System.out.println("No transtions made");
+                        }
+                        break;
+                    }
+                }
+                Bcurrent = BPossibleTransitions.get(RandomWalk);
+                System.out.println("Queue looks like this: " + queue);
+                BPossibleTransitions.clear();
+            }
             counter++;
-            if(counter == 10)
+            if(counter == 4)
             {
                 break;
             }
-            if(Ablocked && queue.isEmpty())
+            if(Ablocked && queue.isEmpty() && Bblocked)
             {
                 System.out.println("DeadLock occured");
                 break;
