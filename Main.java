@@ -54,7 +54,6 @@ public class Main {
         System.out.println(number);
 
         for(int i = 0; i < myEntityList.size(); i++) {
-            myEntityList.get(i).PrintElements();
             if(myEntityList.get(i).getEnitityLetter() == 'A')
             {
                 Anumber++;
@@ -68,7 +67,10 @@ public class Main {
         System.out.println(Bnumber);
 
         int Acurrent = 0,Bcurrent = Anumber, RandomWalk;
+        boolean Ablocked = false;
+        boolean Bblocked = false;
         List<Integer> APossibleTransitions = new ArrayList<Integer>();
+        List<Integer> BPossibleTransitions = new ArrayList<Integer>();
         while (myEntityList.get(Acurrent).getDestiantion() != -1 && myEntityList.get(Bcurrent).getDestiantion() != -1)
         {
             for(int i = 0; i < myEntityList.size(); i++) {
@@ -76,45 +78,61 @@ public class Main {
                     APossibleTransitions.add(myEntityList.get(i).getDestiantion());
                 }
             }
-            do {
-                RandomWalk = ThreadLocalRandom.current().nextInt(0, APossibleTransitions.size() + 1);
-            }while (RandomWalk == Acurrent);
-            System.out.println("Entity A");
-            System.out.println("Transition form " + Acurrent + " to " + RandomWalk + " state");
-            for(int i = 0; i < myEntityList.size(); i++) {
-                if (myEntityList.get(i).getEnitityLetter() == 'A' && myEntityList.get(i).getStateNumber() == Acurrent && myEntityList.get(i).getDestiantion() == RandomWalk)
-                {
 
-                    if(myEntityList.get(i).getTransmision() == '-')
-                    {
-                        System.out.println("Sanding " + myEntityList.get(i).getMessage() + " to Queue");
-                        queue = queue + myEntityList.get(i).getMessage();
+            if(APossibleTransitions.size() == 0)
+            {
+                System.out.println("A Has no other trasitions");
+                Ablocked = true;
+            }else {
+                do {
+                    RandomWalk = ThreadLocalRandom.current().nextInt(0, APossibleTransitions.size());
+                } while (APossibleTransitions.get(RandomWalk) == Acurrent);
+
+                System.out.println("Entity A");
+                System.out.println("Transition form " + Acurrent + " to " + APossibleTransitions.get(RandomWalk) + " state");
+                for (int i = 0; i < myEntityList.size(); i++) {
+                    if (myEntityList.get(i).getEnitityLetter() == 'A' && myEntityList.get(i).getStateNumber() == Acurrent && myEntityList.get(i).getDestiantion() == APossibleTransitions.get(RandomWalk)) {
+
+                        if (myEntityList.get(i).getTransmision() == '-') {
+                            System.out.println("Sanding " + myEntityList.get(i).getMessage() + " to Queue");
+                            queue = queue + myEntityList.get(i).getMessage();
+                        } else if (myEntityList.get(i).getTransmision() == '+') {
+                            System.out.println("Receiving " + myEntityList.get(i).getMessage() + " from Queue");
+                            queue = removeFirst(myEntityList.get(i).getMessage(), queue);
+                        } else {
+                            System.out.println("No transtions made");
+                        }
+                        break;
                     }
-                    else if (myEntityList.get(i).getTransmision() == '+')
-                    {
-                        System.out.println("Receiving " + myEntityList.get(i).getMessage() + "from Queue");
-                        queue = queue + "-" + myEntityList.get(i).getMessage();
-                    }
-                    else
-                    {
-                        System.out.println("No transtions made");
-                    }
-                    break;
                 }
+                Acurrent = APossibleTransitions.get(RandomWalk);
+                System.out.println("Queue looks like this: " + queue);
+                APossibleTransitions.clear();
             }
-            Acurrent = RandomWalk;
-            System.out.println("Queue looks like this: " + queue);
-            APossibleTransitions.clear();
             counter++;
             if(counter == 10)
             {
                 break;
             }
+            if(Ablocked && queue.isEmpty())
+            {
+                System.out.println("DeadLock occured");
+                break;
+            }
         }
+
+
+
     }
 
 
-
+    public static String removeFirst(char ch, String s) {
+        int charPos = s.indexOf(ch);
+        if (charPos < 0) {
+            return s;
+        }
+        return new StringBuilder(s).deleteCharAt(charPos).toString();
+    }
 
 
 
