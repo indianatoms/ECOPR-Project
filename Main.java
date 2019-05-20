@@ -73,6 +73,8 @@ public class Main {
         boolean Bblocked = false;
         List<Integer> APossibleTransitions = new ArrayList<Integer>();
         List<Integer> BPossibleTransitions = new ArrayList<Integer>();
+        
+        //warunek petli jest bez sensu
         while (myEntityList.get(Acurrent).getDestiantion() != -1 && myEntityList.get(Bcurrent).getDestiantion() != -1)
         {
             for(int i = 0; i < myEntityList.size(); i++) {
@@ -86,6 +88,7 @@ public class Main {
                 System.out.println("A Has no other trasitions");
                 Ablocked = true;
             }else {
+                //wychodzi na to ze mozna wylosowac samego siebie i nie ma z tym problemu
                 do {
                     RandomWalk = ThreadLocalRandom.current().nextInt(0, APossibleTransitions.size());
                 } while (APossibleTransitions.get(RandomWalk) == Acurrent);
@@ -160,9 +163,6 @@ public class Main {
                 break;
             }
         }
-
-
-
     }
 
 
