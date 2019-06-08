@@ -52,7 +52,7 @@ public class Main {
                     Entity entity = new Entity(tokens[i].charAt(0),false,1);
                     entityList.addEntity(entity);
                 }
-                entityList.printEntities();
+ //               entityList.printEntities();
             }
             else {
                 a = tokens[0].charAt(0);
@@ -68,10 +68,10 @@ public class Main {
             number++;
 
         }
-        System.out.println(number);
+ //       System.out.println(number);
 
 
-        while (counter != 50)
+        while (counter != 4)
         {
             entityList.RandomWalk();
             if(entityList.CheckIfAllQueuesEmpty() && entityList.isBlocked)
@@ -185,14 +185,34 @@ public class Main {
                     State current = entity.getStateList().get(j);
                     if(current.getStateNumber() == entity.currentState)
                     {
-                        PossibleMove possibleMove = new PossibleMove(current.getStateNumber(),current.getDestination(),current.getReceiver(),entity.getName());
-                        possibleMoves.add(possibleMove);
+                        if(current.getTransition() != '+') {
+                            PossibleMove possibleMove = new PossibleMove(current.getStateNumber(), current.getDestination(), current.getReceiver(), entity.getName());
+                            possibleMoves.add(possibleMove);
+                        }
+                        else{
+                            for (int it = 0; it< entityList.size(); it++)
+                            {
+                                if(entityList.get(it).getName() == current.getReceiver()){
+                                    if(entity.getQueue() == removeFirst(current.getMessage(),entityList.get(it).getQueue()))
+                                    {
+                                        //  System.out.println("No Such Element in the Queue");
+                                    }
+                                    else {
+                                        PossibleMove possibleMove = new PossibleMove(current.getStateNumber(), current.getDestination(), current.getReceiver(), entity.getName());
+                                        possibleMoves.add(possibleMove);
+                                    }
+                                }
+
+                            }
+
+                        }
                     }
                 }
             }
             if(possibleMoves.size() == 0)
             {
                 isBlocked = true;
+                return;
             }
             System.out.println("Number rof possible moves " + possibleMoves.size());
             int randomNum = ThreadLocalRandom.current().nextInt(0, possibleMoves.size());
@@ -218,7 +238,8 @@ public class Main {
                             if(entity.getStateList().get(j).getDestination() == destination && entity.getStateList().get(j).getReceiver() == targetEntity)
                             {
                                 State state = entity.getStateList().get(j);
-                                if(state.getTransition() == '+')
+                                state.PrintState();
+                                if(state.getTransition() == '-')
                                 {
                                     entity.AddElementToQueue(state.getMessage());
                                     System.out.println("Message Send");
@@ -227,15 +248,24 @@ public class Main {
                                 }
                                 else if (state.getTransition() == '+')
                                 {
-                                    if(entity.getQueue() == removeFirst(state.getMessage(),entity.getQueue()))
+                                    for (int it = 0; i< entityList.size(); it++)
                                     {
-                                        System.out.println("No Such Element in the Queue");
-                                        return false;
+                                        if(entityList.get(it).getName() == state.getReceiver())
+                                        {
+                                            Entity traget = entityList.get(it);
+                                            if(traget.getQueue() == removeFirst(state.getMessage(),entity.getQueue()))
+                                            {
+                                                System.out.println("No Such Element in the Queue");
+                                                return false;
+                                            }
+                                            else {
+                                                traget.RemoveElementFromQueue(state.getMessage());
+                                                System.out.println("Message succesfully recieved");
+                                                return true;
+                                            }
+                                        }
                                     }
-                                    else {
-                                        entity.RemoveElementFromQueue(state.getMessage());
-                                        return true;
-                                    }
+
                                 }
                                 else if (state.getTransition() == 't')
                                 {
@@ -310,6 +340,8 @@ public class Main {
         public ArrayList<State> getStateList() {
             return stateList;
         }
+
+
     }
 
 
@@ -319,6 +351,7 @@ public class Main {
         private char message;
         private char receiver;
         private int destination;
+
 
         public char getReceiver() {
             return receiver;
@@ -393,3 +426,16 @@ public class Main {
 
 
 }
+
+//tests
+//NO DEADLOCKS - GOES IN INFINITY
+//2,A,B;
+//        A,1,-,a,2,B;
+//        A,2,+,a,1,B;
+//        B,1,t,b,2,A;
+//        B,2,t,b,2,A;
+
+//DEADLOCK BY THIRD MOVE
+//2,A,B;
+//        A,1,t,-,2,B;
+//        B,1,t,-,2,A;
