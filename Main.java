@@ -447,9 +447,10 @@ public class Main {
 //NO DEADLOCKS - GOES IN INFINITY
 //2,A,B;
 //        A,1,-,a,2,B;
-//        A,2,+,a,1,B;
-//        B,1,t,b,2,A;
-//        B,2,t,b,2,A;
+//        A,2,t,-,2,A;
+//        B,1,+,a,2,B;
+//        B,2,t,-,2,A;
+
 
 //DEADLOCK BY THIRD MOVE
 //2,A,B;
